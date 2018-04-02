@@ -1,3 +1,4 @@
+// Package workqueue provides basic interfaces to work queue.
 package workqueue
 
 import (
@@ -6,14 +7,17 @@ import (
 	"sync"
 )
 
-// Work is the interface that wraps the work for the work queue.
+// Work is the interface that wraps the Do method for the work queue.
 type Work interface {
-	// Do does the real work in context of a worker.
+	// Do does the real work in the context of a worker.
 	Do(context.Context)
 }
 
+// WorkContextHelper is the interface that wraps the work context methods.
 type WorkContextHelper interface {
+	// Setup setups the worker's context.
 	Setup() context.Context
+	// Teardown cleanups the worker's context.
 	Teardown(context.Context)
 }
 
@@ -23,6 +27,7 @@ type WorkQueue struct {
 	wg        *sync.WaitGroup
 }
 
+// QueueWork queues the work to the work queue. The queued work will be done in a worker's context.
 func (wq *WorkQueue) QueueWork(w Work) error {
 	select {
 	case wq.workQueue <- w:
@@ -33,6 +38,7 @@ func (wq *WorkQueue) QueueWork(w Work) error {
 	return nil
 }
 
+// Stop closes the channel of the work queue and wait all queued works done.
 func (wq *WorkQueue) Stop() {
 	close(wq.workQueue)
 	wq.wg.Wait()
@@ -50,6 +56,7 @@ func (wq *WorkQueue) doWorks() {
 	}
 }
 
+// NewWorkQueue creates a new work queue.
 func NewWorkQueue(nworks, nworkers int, wch WorkContextHelper) *WorkQueue {
 	wq := WorkQueue{
 		workQueue: make(chan Work, nworks),

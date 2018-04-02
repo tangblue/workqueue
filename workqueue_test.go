@@ -1,10 +1,10 @@
-package workqueue
+package workqueue_test
 
 import (
 	"context"
 	"fmt"
+	"github.com/tangblue/workqueue"
 	"sync/atomic"
-	"testing"
 	"time"
 )
 
@@ -48,24 +48,16 @@ func (dwc delayWorkContext) Teardown(ctx context.Context) {
 	fmt.Printf("%+v: Teardown\n", ctx)
 }
 
-func TestContextNil(t *testing.T) {
-	dwq := NewWorkQueue(4, 2, nil)
+func ExampleWorkQueue() {
+	atomic.StoreInt32(&id, 0)
+	dwq := workqueue.NewWorkQueue(2, 1, delayWorkContext{})
 
-	for i := 0; i < 5; i += 1 {
-		if err := dwq.QueueWork(delayWork{"hi", time.Second}); err != nil {
-			fmt.Println("Error:", err)
-		}
+	if err := dwq.QueueWork(delayWork{"hi", time.Second}); err != nil {
+		fmt.Println("Error:", err)
 	}
 	dwq.Stop()
-}
-
-func TestContext(t *testing.T) {
-	dwq := NewWorkQueue(4, 2, delayWorkContext{})
-
-	for i := 0; i < 5; i += 1 {
-		if err := dwq.QueueWork(delayWork{"hi", time.Second}); err != nil {
-			fmt.Println("Error:", err)
-		}
-	}
-	dwq.Stop()
+	// Output:
+	// context.Background.WithValue("id", 1): Setup
+	// context.Background.WithValue("id", 1): 1 Delay 1s seconds
+	// context.Background.WithValue("id", 1): Teardown
 }

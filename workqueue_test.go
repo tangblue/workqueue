@@ -50,12 +50,12 @@ func (dwc delayWorkContext) Teardown(ctx context.Context) {
 
 func ExampleWorkQueue() {
 	atomic.StoreInt32(&id, 0)
-	dwq := workqueue.NewWorkQueue(2, 1, delayWorkContext{})
+	dwq := workqueue.New(2, 1, delayWorkContext{})
 
-	if err := dwq.QueueWork(delayWork{"hi", time.Second}); err != nil {
+	if err := dwq.Enqueue(delayWork{"hi", time.Second}); err != nil {
 		fmt.Println("Error:", err)
 	}
-	dwq.Stop()
+	dwq.Close()
 	// Output:
 	// context.Background.WithValue("id", 1): Setup
 	// context.Background.WithValue("id", 1): 1 Delay 1s seconds

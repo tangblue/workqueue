@@ -8,23 +8,23 @@ import (
 )
 
 func TestContextNil(t *testing.T) {
-	dwq := workqueue.NewWorkQueue(4, 2, nil)
+	dwq := workqueue.New(4, 2, nil)
 
 	for i := 0; i < 5; i += 1 {
-		if err := dwq.QueueWork(delayWork{"hi", time.Second}); err != nil {
+		if err := dwq.Enqueue(delayWork{"hi", time.Second}); err != nil {
 			fmt.Println("Error:", err)
 		}
 	}
-	dwq.Stop()
+	dwq.Close()
 }
 
 func TestWorkQueue(t *testing.T) {
-	dwq := workqueue.NewWorkQueue(4, 2, delayWorkContext{})
+	dwq := workqueue.New(4, 2, delayWorkContext{})
 
 	for i := 0; i < 5; i += 1 {
-		if err := dwq.QueueWork(delayWork{"hi", time.Second}); err != nil {
+		if err := dwq.Enqueue(delayWork{"hi", time.Second}); err != nil {
 			fmt.Println("Error:", err)
 		}
 	}
-	dwq.Stop()
+	dwq.Close()
 }

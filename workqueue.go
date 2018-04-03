@@ -27,8 +27,8 @@ type WorkQueue struct {
 	wg        *sync.WaitGroup
 }
 
-// QueueWork queues the work to the work queue. The queued work will be done in a worker's context.
-func (wq *WorkQueue) QueueWork(w Work) error {
+// Enqueue queues the work to the work queue. The queued work will be done in a worker's context.
+func (wq *WorkQueue) Enqueue(w Work) error {
 	select {
 	case wq.workQueue <- w:
 	default:
@@ -38,8 +38,8 @@ func (wq *WorkQueue) QueueWork(w Work) error {
 	return nil
 }
 
-// Stop closes the channel of the work queue and wait all queued works done.
-func (wq *WorkQueue) Stop() {
+// Close closes the channel of the work queue and wait all queued works done.
+func (wq *WorkQueue) Close() {
 	close(wq.workQueue)
 	wq.wg.Wait()
 }
@@ -56,8 +56,8 @@ func (wq *WorkQueue) doWorks() {
 	}
 }
 
-// NewWorkQueue creates a new work queue.
-func NewWorkQueue(nworks, nworkers int, wch WorkContextHelper) *WorkQueue {
+// New creates a new work queue.
+func New(nworks, nworkers int, wch WorkContextHelper) *WorkQueue {
 	wq := WorkQueue{
 		workQueue: make(chan Work, nworks),
 		wch:       wch,

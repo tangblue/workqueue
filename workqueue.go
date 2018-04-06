@@ -7,6 +7,9 @@ import (
 	"sync"
 )
 
+// ErrDropped is the error returned when the work queue is full.
+var ErrDropped = errors.New("Dropped")
+
 // Work is the interface that wraps the Do method for the work queue.
 type Work interface {
 	// Do does the real work in the context of a worker.
@@ -32,7 +35,7 @@ func (wq *WorkQueue) Enqueue(w Work) error {
 	select {
 	case wq.workQueue <- w:
 	default:
-		return errors.New("Work queue full")
+		return ErrDropped
 	}
 
 	return nil

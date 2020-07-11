@@ -52,6 +52,8 @@ func (wq *WorkQueue) doWorks() {
 	if wq.wch != nil {
 		ctx = wq.wch.Setup()
 		defer wq.wch.Teardown(ctx)
+	} else {
+		ctx = context.Background()
 	}
 
 	for w := range wq.workQueue {
@@ -67,8 +69,8 @@ func New(nworks, nworkers int, wch WorkContextHelper) *WorkQueue {
 		wg:        &sync.WaitGroup{},
 	}
 
+	wq.wg.Add(nworkers)
 	for i := 0; i < nworkers; i++ {
-		wq.wg.Add(1)
 		go func() {
 			wq.doWorks()
 			wq.wg.Done()

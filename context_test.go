@@ -19,7 +19,7 @@ func TestContextNil(t *testing.T) {
 }
 
 func TestWorkQueue(t *testing.T) {
-	dwq := workqueue.New(4, 2, delayWorkContext{})
+	dwq := workqueue.New(4, 2, &delayWorkContext{})
 
 	for i := 0; i < 5; i += 1 {
 		if err := dwq.Enqueue(delayWork{"hi", time.Second}); err != nil {

@@ -27,7 +27,7 @@ type WorkContextHelper interface {
 type WorkQueue struct {
 	workQueue chan Work
 	wch       WorkContextHelper
-	wg        *sync.WaitGroup
+	*sync.WaitGroup
 }
 
 // Enqueue queues the work to the work queue. The queued work will be done in a worker's context.
@@ -44,7 +44,7 @@ func (wq *WorkQueue) Enqueue(w Work) error {
 // Close closes the channel of the work queue and wait all queued works done.
 func (wq *WorkQueue) Close() {
 	close(wq.workQueue)
-	wq.wg.Wait()
+	wq.Wait()
 }
 
 func (wq *WorkQueue) doWorks() {
@@ -66,14 +66,14 @@ func New(nworks, nworkers int, wch WorkContextHelper) *WorkQueue {
 	wq := WorkQueue{
 		workQueue: make(chan Work, nworks),
 		wch:       wch,
-		wg:        &sync.WaitGroup{},
+		WaitGroup: &sync.WaitGroup{},
 	}
 
-	wq.wg.Add(nworkers)
+	wq.Add(nworkers)
 	for i := 0; i < nworkers; i++ {
 		go func() {
 			wq.doWorks()
-			wq.wg.Done()
+			wq.Done()
 		}()
 	}
 
